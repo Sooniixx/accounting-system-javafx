@@ -51,7 +51,7 @@ public class DatabaseManager {
         try {
             return DriverManager.getConnection(
                     properties.getProperty("db.url"),
-                    properties.getProperty("db.username"),
+                    properties.getProperty("db.user"),
                     properties.getProperty("db.password"));
 
         } catch (Exception e) {
