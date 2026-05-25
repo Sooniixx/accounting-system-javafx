@@ -25,7 +25,7 @@ public class EmployeeService {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to add employee: " + e.getFullName(), ex);
         }
     }
 
@@ -54,7 +54,7 @@ public class EmployeeService {
             }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to retrieve employees", ex);
         }
 
         return list;
@@ -74,10 +74,13 @@ public class EmployeeService {
             ps.setString(4, e.getDepartment());
             ps.setInt(5, e.getId());
 
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("No employee found with ID: " + e.getId());
+            }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to update employee with ID: " + e.getId(), ex);
         }
     }
 
@@ -90,10 +93,13 @@ public class EmployeeService {
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new RuntimeException("No employee found with ID: " + id);
+            }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to delete employee with ID: " + id, ex);
         }
     }
 
@@ -118,23 +124,23 @@ public class EmployeeService {
 
             ps.setString(1, value);
 
-            ResultSet rs = ps.executeQuery();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
 
-            while (rs.next()) {
+                    Employee e = new Employee();
 
-                Employee e = new Employee();
+                    e.setId(rs.getInt("id"));
+                    e.setFullName(rs.getString("full_name"));
+                    e.setPosition(rs.getString("position"));
+                    e.setSalary(rs.getDouble("salary"));
+                    e.setDepartment(rs.getString("department"));
 
-                e.setId(rs.getInt("id"));
-                e.setFullName(rs.getString("full_name"));
-                e.setPosition(rs.getString("position"));
-                e.setSalary(rs.getDouble("salary"));
-                e.setDepartment(rs.getString("department"));
-
-                list.add(e);
+                    list.add(e);
+                }
             }
 
         } catch (SQLException ex) {
-            ex.printStackTrace();
+            throw new RuntimeException("Failed to search employees by " + field + ": " + value, ex);
         }
 
         return list;
