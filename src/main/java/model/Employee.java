@@ -1,30 +1,44 @@
 package model;
 
+import java.time.LocalDate;
+
 public class Employee {
     private int id;
     private String fullName;
     private String position;
-    private double salary;
-    private String department;
+    private LocalDate hireDate;
+    private int annualPaidLeaveDays;
+    private int carryoverPaidLeaveDays;
+    private int departmentId;
 
+    // Порожній конструктор
     public Employee() {
     }
 
-    public Employee(int id, String fullName, String position, double salary, String department) {
+    // Повний конструктор
+    public Employee(int id, String fullName, String position, LocalDate hireDate,
+            int annualPaidLeaveDays, int carryoverPaidLeaveDays, int departmentId) {
         this.id = id;
         this.fullName = fullName;
         this.position = position;
-        this.salary = salary;
-        this.department = department;
+        this.hireDate = hireDate;
+        this.annualPaidLeaveDays = annualPaidLeaveDays;
+        this.carryoverPaidLeaveDays = carryoverPaidLeaveDays;
+        this.departmentId = departmentId;
     }
 
-    public Employee(String fullName, String position, double salary, String department) {
+    // Конструктор без ID (для додавання нового співробітника)
+    public Employee(String fullName, String position, LocalDate hireDate,
+            int annualPaidLeaveDays, int carryoverPaidLeaveDays, int departmentId) {
         this.fullName = fullName;
         this.position = position;
-        this.salary = salary;
-        this.department = department;
+        this.hireDate = hireDate;
+        this.annualPaidLeaveDays = annualPaidLeaveDays;
+        this.carryoverPaidLeaveDays = carryoverPaidLeaveDays;
+        this.departmentId = departmentId;
     }
 
+    // Гетери та сетери
     public int getId() {
         return id;
     }
@@ -49,19 +63,40 @@ public class Employee {
         this.position = position;
     }
 
-    public double getSalary() {
-        return salary;
+    public LocalDate getHireDate() {
+        return hireDate;
     }
 
-    public void setSalary(double salary) {
-        this.salary = salary;
+    public void setHireDate(LocalDate hireDate) {
+        this.hireDate = hireDate;
     }
 
-    public String getDepartment() {
-        return department;
+    public int getAnnualPaidLeaveDays() {
+        return annualPaidLeaveDays;
     }
 
-    public void setDepartment(String department) {
-        this.department = department;
+    public void setAnnualPaidLeaveDays(int annualPaidLeaveDays) {
+        this.annualPaidLeaveDays = annualPaidLeaveDays;
+    }
+
+    public int getCarryoverPaidLeaveDays() {
+        return carryoverPaidLeaveDays;
+    }
+
+    public void setCarryoverPaidLeaveDays(int carryoverPaidLeaveDays) {
+        this.carryoverPaidLeaveDays = carryoverPaidLeaveDays;
+    }
+
+    public int getDepartmentId() {
+        return departmentId;
+    }
+
+    public void setDepartmentId(int departmentId) {
+        this.departmentId = departmentId;
+    }
+
+    @Override
+    public String toString() {
+        return "Employee{" + "id=" + id + ", fullName='" + fullName + '\'' + ", position='" + position + '\'' + '}';
     }
 }
