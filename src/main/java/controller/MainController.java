@@ -2,68 +2,97 @@ package controller;
 
 import model.Employee;
 import service.EmployeeService;
+import java.time.LocalDate;
 import java.util.List;
 
 public class MainController {
-    private final EmployeeService service;
+    private final EmployeeService employeeService;
 
     public MainController() {
-        this.service = new EmployeeService();
+        this.employeeService = new EmployeeService();
     }
 
-    public void addEmployee(String fullName, String position, double salary, String department) {
-        validateEmployeeData(fullName, position, salary, department);
-        Employee e = new Employee(fullName, position, salary, department);
-        service.addEmployee(e);
+    public void addEmployee(String fullName, String position, LocalDate hireDate, int annualDays, int deptId, int carryoverDays) {
+        validateEmployeeData(fullName, position, hireDate, annualDays, deptId, carryoverDays);
+        Employee e = new Employee(0, fullName, position, hireDate, annualDays, deptId, carryoverDays);
+        employeeService.addEmployee(e);
     }
 
     public List<Employee> getAllEmployees() {
-        return service.getAllEmployees();
+        return employeeService.getAllEmployees();
     }
 
-    public void updateEmployee(int id, String fullName, String position, double salary, String department) {
+    public void updateEmployee(int id, String fullName, String position, LocalDate hireDate, int annualDays, int deptId, int carryoverDays) {
         if (id <= 0) {
-            throw new IllegalArgumentException("ID must be positive");
+            throw new IllegalArgumentException("ID співробітника повинен бути додатнім");
         }
-
-        validateEmployeeData(fullName, position, salary, department);
-        Employee e = new Employee(id, fullName, position, salary, department);
-        service.updateEmployee(e);
+        validateEmployeeData(fullName, position, hireDate, annualDays, deptId, carryoverDays);
+        Employee e = new Employee(id, fullName, position, hireDate, annualDays, deptId, carryoverDays);
+        employeeService.updateEmployee(e);
     }
 
     public void deleteEmployee(int id) {
         if (id <= 0) {
-            throw new IllegalArgumentException("ID must be positive");
+            throw new IllegalArgumentException("ID співробітника повинен бути додатнім");
         }
-        service.deleteEmployee(id);
+        employeeService.deleteEmployee(id);
     }
 
-    public List<Employee> searchByDepartment(String dept) {
-        if (dept == null || dept.trim().isEmpty()) {
-            throw new IllegalArgumentException("Department cannot be empty");
+    public List<Employee> searchByDepartmentId(int deptId) {
+        if (deptId <= 0) {
+            throw new IllegalArgumentException("ID відділу повинен бути додатнім");
         }
-        return service.searchByDepartment(dept.trim());
+        return employeeService.searchByDepartmentId(deptId);
     }
 
-    public List<Employee> searchByPosition(String pos) {
-        if (pos == null || pos.trim().isEmpty()) {
-            throw new IllegalArgumentException("Position cannot be empty");
+    public List<Employee> searchByPosition(String position) {
+        if (position == null || position.trim().isEmpty()) {
+            throw new IllegalArgumentException("Посада не може бути порожньою");
         }
-        return service.searchByPosition(pos.trim());
+        return employeeService.searchByPosition(position.trim());
     }
 
-    private void validateEmployeeData(String fullName, String position, double salary, String department) {
+    public int getUnusedLeaveDays(int employeeId) {
+        if (employeeId <= 0) {
+            throw new IllegalArgumentException("ID співробітника повинен бути додатнім");
+        }
+        return employeeService.getUnusedLeaveDays(employeeId);
+    }
+
+    // Приватний метод для жорсткої перевірки даних перед відправкою в БД
+    private void validateEmployeeData(String fullName, String position, LocalDate hireDate, int annualDays, int deptId, int carryoverDays) {
         if (fullName == null || fullName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Full name cannot be empty");
+            throw new IllegalArgumentException("ПІБ не може бути порожнім");
         }
         if (position == null || position.trim().isEmpty()) {
-            throw new IllegalArgumentException("Position cannot be empty");
+            throw new IllegalArgumentException("Посада не може бути порожньою");
         }
-        if (salary <= 0) {
-            throw new IllegalArgumentException("Salary must be positive");
+        if (hireDate == null) {
+            throw new IllegalArgumentException("Дата прийому на роботу не може бути порожньою");
         }
-        if (department == null || department.trim().isEmpty()) {
-            throw new IllegalArgumentException("Department cannot be empty");
+        if (annualDays <= 0) {
+            throw new IllegalArgumentException("Кількість днів щорічної відпустки повинна бути більшою за 0");
         }
+        if (deptId <= 0) {
+            throw new IllegalArgumentException("ID відділу повинен бути додатнім");
+        }
+        if (carryoverDays < 0) {
+            throw new IllegalArgumentException("Перенесені дні відпустки не можуть бути від'ємними");
+        }
+    }
+
+    public void addVacation(int employeeId, LocalDate startDate, LocalDate endDate, String type) {
+        if (startDate == null || endDate == null) throw new IllegalArgumentException("Оберіть дати початку та кінця відпустки");
+        if (endDate.isBefore(startDate)) throw new IllegalArgumentException("Дата кінця не може бути раніше дати початку");
+        employeeService.addVacation(employeeId, startDate, endDate, type);
+    }
+
+    public void addDepartment(String name) {
+        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("Назва відділу не може бути порожньою");
+        new service.DepartmentService().addDepartment(name);
+    }
+
+    public List<model.Department> getAllDepartments() {
+        return new service.DepartmentService().getAllDepartments();
     }
 }

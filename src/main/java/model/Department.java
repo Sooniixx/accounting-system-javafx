@@ -1,0 +1,20 @@
+package model;
+
+public class Department {
+    private int id;
+    private String name;
+    private Integer managerId; // Може бути null, якщо менеджера ще не призначено
+
+    public Department() {}
+
+    public Department(int id, String name, Integer managerId) {
+        this.id = id; this.name = name; this.managerId = managerId;
+    }
+
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public Integer getManagerId() { return managerId; }
+    public void setManagerId(Integer managerId) { this.managerId = managerId; }
+}

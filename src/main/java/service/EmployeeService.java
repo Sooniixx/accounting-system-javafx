@@ -4,145 +4,119 @@ import db.DatabaseManager;
 import model.Employee;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeService {
 
-    // Create (insert)
     public void addEmployee(Employee e) {
-
-        String sql = "INSERT INTO employees (full_name, position, salary, department) VALUES (?, ?, ?, ?)";
-
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        String sql = "INSERT INTO employees (full_name, position, hire_date, annual_paid_leave_days, department_id, carryover_paid_leave_days) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getFullName());
             ps.setString(2, e.getPosition());
-            ps.setDouble(3, e.getSalary());
-            ps.setString(4, e.getDepartment());
-
+            ps.setDate(3, Date.valueOf(e.getHireDate()));
+            ps.setInt(4, e.getAnnualPaidLeaveDays());
+            ps.setInt(5, e.getDepartmentId());
+            ps.setInt(6, e.getCarryoverPaidLeaveDays());
             ps.executeUpdate();
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to add employee: " + e.getFullName(), ex);
-        }
+        } catch (SQLException ex) { throw new RuntimeException("Помилка додавання співробітника", ex); }
     }
 
-    // Read (select all)
     public List<Employee> getAllEmployees() {
-
-        List<Employee> list = new ArrayList<>();
-
-        String sql = "SELECT * FROM employees";
-
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
-
-            while (rs.next()) {
-
-                Employee e = new Employee();
-
-                e.setId(rs.getInt("id"));
-                e.setFullName(rs.getString("full_name"));
-                e.setPosition(rs.getString("position"));
-                e.setSalary(rs.getDouble("salary"));
-                e.setDepartment(rs.getString("department"));
-
-                list.add(e);
-            }
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to retrieve employees", ex);
-        }
-
-        return list;
+        return fetchEmployees("SELECT * FROM employees");
     }
 
-    // Update
     public void updateEmployee(Employee e) {
-
-        String sql = "UPDATE employees SET full_name=?, position=?, salary=?, department=? WHERE id=?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        String sql = "UPDATE employees SET full_name=?, position=?, hire_date=?, annual_paid_leave_days=?, department_id=?, carryover_paid_leave_days=? WHERE id=?";
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getFullName());
             ps.setString(2, e.getPosition());
-            ps.setDouble(3, e.getSalary());
-            ps.setString(4, e.getDepartment());
-            ps.setInt(5, e.getId());
-
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new RuntimeException("No employee found with ID: " + e.getId());
-            }
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to update employee with ID: " + e.getId(), ex);
-        }
+            ps.setDate(3, Date.valueOf(e.getHireDate()));
+            ps.setInt(4, e.getAnnualPaidLeaveDays());
+            ps.setInt(5, e.getDepartmentId());
+            ps.setInt(6, e.getCarryoverPaidLeaveDays());
+            ps.setInt(7, e.getId());
+            ps.executeUpdate();
+        } catch (SQLException ex) { throw new RuntimeException("Помилка оновлення", ex); }
     }
 
-    // Delete
     public void deleteEmployee(int id) {
-
-        String sql = "DELETE FROM employees WHERE id=?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
+        String sql = "DELETE FROM employees WHERE id = ?";
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
-            int rowsAffected = ps.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new RuntimeException("No employee found with ID: " + id);
-            }
-
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to delete employee with ID: " + id, ex);
-        }
+            ps.executeUpdate();
+        } catch (SQLException ex) { throw new RuntimeException("Помилка видалення", ex); }
     }
 
-    // Search by department
-    public List<Employee> searchByDepartment(String dept) {
-        return search("department", dept);
+    // Повернуті методи пошуку
+    public List<Employee> searchByDepartmentId(int deptId) {
+        String sql = "SELECT * FROM employees WHERE department_id = ?";
+        return fetchEmployeesWithParam(sql, deptId);
     }
 
-    // Search by position
-    public List<Employee> searchByPosition(String pos) {
-        return search("position", pos);
+    public List<Employee> searchByPosition(String position) {
+        String sql = "SELECT * FROM employees WHERE position = ?";
+        return fetchEmployeesWithStringParam(sql, position);
     }
 
-    private List<Employee> search(String field, String value) {
-
-        List<Employee> list = new ArrayList<>();
-
-        String sql = "SELECT * FROM employees WHERE " + field + " = ?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, value);
-
+    // Складний аналітичний запит
+    public int getUnusedLeaveDays(int employeeId) {
+        String sql = "SELECT (annual_paid_leave_days + carryover_paid_leave_days) - " +
+                "COALESCE((SELECT SUM(DATEDIFF(DAY, start_date, end_date) + 1) " +
+                "FROM vacations WHERE employee_id = ? AND vacation_type = 'paid'), 0) AS remaining " +
+                "FROM employees WHERE id = ?";
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, employeeId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-
-                    Employee e = new Employee();
-
-                    e.setId(rs.getInt("id"));
-                    e.setFullName(rs.getString("full_name"));
-                    e.setPosition(rs.getString("position"));
-                    e.setSalary(rs.getDouble("salary"));
-                    e.setDepartment(rs.getString("department"));
-
-                    list.add(e);
-                }
+                if (rs.next()) return rs.getInt("remaining");
             }
+        } catch (SQLException ex) { throw new RuntimeException("Помилка підрахунку відпусток", ex); }
+        return 0;
+    }
 
-        } catch (SQLException ex) {
-            throw new RuntimeException("Failed to search employees by " + field + ": " + value, ex);
-        }
-
+    // Допоміжні методи для уникнення дублювання коду
+    private List<Employee> fetchEmployees(String sql) {
+        List<Employee> list = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                list.add(new Employee(rs.getInt("id"), rs.getString("full_name"), rs.getString("position"), rs.getDate("hire_date").toLocalDate(), rs.getInt("annual_paid_leave_days"), rs.getInt("department_id"), rs.getInt("carryover_paid_leave_days")));
+            }
+        } catch (SQLException ex) { throw new RuntimeException("Помилка завантаження", ex); }
         return list;
+    }
+
+    private List<Employee> fetchEmployeesWithParam(String sql, int param) {
+        List<Employee> list = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, param);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new Employee(rs.getInt("id"), rs.getString("full_name"), rs.getString("position"), rs.getDate("hire_date").toLocalDate(), rs.getInt("annual_paid_leave_days"), rs.getInt("department_id"), rs.getInt("carryover_paid_leave_days")));
+            }
+        } catch (SQLException ex) { throw new RuntimeException("Помилка пошуку", ex); }
+        return list;
+    }
+
+    private List<Employee> fetchEmployeesWithStringParam(String sql, String param) {
+        List<Employee> list = new ArrayList<>();
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, param);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) list.add(new Employee(rs.getInt("id"), rs.getString("full_name"), rs.getString("position"), rs.getDate("hire_date").toLocalDate(), rs.getInt("annual_paid_leave_days"), rs.getInt("department_id"), rs.getInt("carryover_paid_leave_days")));
+            }
+        } catch (SQLException ex) { throw new RuntimeException("Помилка пошуку", ex); }
+        return list;
+    }
+
+    public void addVacation(int employeeId, LocalDate startDate, LocalDate endDate, String type) {
+        String sql = "INSERT INTO vacations (employee_id, start_date, end_date, vacation_type) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseManager.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setDate(2, Date.valueOf(startDate));
+            ps.setDate(3, Date.valueOf(endDate));
+            ps.setString(4, type);
+            ps.executeUpdate();
+        } catch (SQLException ex) { throw new RuntimeException("Помилка додавання відпустки", ex); }
     }
 }
