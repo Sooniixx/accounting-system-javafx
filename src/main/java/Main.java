@@ -1,8 +1,13 @@
-import view.MainApp;
+import db.DatabaseManager;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Starting Employee Management System...");
-        javafx.application.Application.launch(MainApp.class, args);
+        try {
+            DatabaseManager.getConnection();
+            System.out.println("Database connection successful!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        javafx.application.Application.launch(service.MainApp.class, args);
     }
 }
