@@ -1,0 +1,30 @@
+2026-05-28 19:17:50.933395+03:00 jdbc[4]: null
+org.h2.message.DbException: Незакрытое приложением соединение уничтожено сборщиком мусора
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:218)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:135)
+	at org.h2.Driver.connect(Driver.java:59)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:682)
+	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+	at db.DatabaseManager.getConnection(DatabaseManager.java:86)
+	at service.EmployeeService.getAllEmployees(EmployeeService.java:38)
+	at controller.MainController.getAllEmployees(MainController.java:31)
+	at service.MainApp.refreshTable(MainApp.java:223)
+	at service.MainApp.start(MainApp.java:70)
+	at javafx.graphics/com.sun.javafx.application.LauncherImpl.lambda$launchApplication1$9(LauncherImpl.java:847)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runAndWait$12(PlatformImpl.java:484)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runLater$10(PlatformImpl.java:457)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at javafx.graphics/com.sun.javafx.application.PlatformImpl.lambda$runLater$11(PlatformImpl.java:456)
+	at javafx.graphics/com.sun.glass.ui.InvokeLaterDispatcher$Future.run(InvokeLaterDispatcher.java:96)
+	at javafx.graphics/com.sun.glass.ui.win.WinApplication._runLoop(Native Method)
+	at javafx.graphics/com.sun.glass.ui.win.WinApplication.lambda$runLoop$3(WinApplication.java:184)
+	at java.base/java.lang.Thread.run(Thread.java:1575)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: Незакрытое приложением соединение уничтожено сборщиком мусора
+The connection was not closed by the application and is garbage collected [90018-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 22 more

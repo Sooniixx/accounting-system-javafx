@@ -11,10 +11,10 @@ public class EmployeeService {
 
     // Create (insert)
     public void addEmployee(Employee e) {
-        String sql = "INSERT INTO employees (full_name, position, hire_date, annual_paid_leave_days, carryover_paid_leave_days, department_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO employees (full_name, position, hire_date, annual_days, carryover_days, department_id) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, e.getFullName());
             ps.setString(2, e.getPosition());
@@ -26,7 +26,7 @@ public class EmployeeService {
             ps.executeUpdate();
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to add employee: " + e.getFullName(), ex);
+            throw new RuntimeException("Не вдалося додати співробітника: " + e.getFullName(), ex);
         }
     }
 
@@ -36,8 +36,8 @@ public class EmployeeService {
         String sql = "SELECT * FROM employees";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Employee e = new Employee();
@@ -50,15 +50,15 @@ public class EmployeeService {
                     e.setHireDate(hireDate.toLocalDate());
                 }
 
-                e.setAnnualPaidLeaveDays(rs.getInt("annual_paid_leave_days"));
-                e.setCarryoverPaidLeaveDays(rs.getInt("carryover_paid_leave_days"));
+                e.setAnnualPaidLeaveDays(rs.getInt("annual_days"));
+                e.setCarryoverPaidLeaveDays(rs.getInt("carryover_days"));
                 e.setDepartmentId(rs.getInt("department_id"));
 
                 list.add(e);
             }
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to retrieve employees", ex);
+            throw new RuntimeException("Не вдалося отримати співробітників", ex);
         }
 
         return list;
@@ -66,10 +66,10 @@ public class EmployeeService {
 
     // Update
     public void updateEmployee(Employee e) {
-        String sql = "UPDATE employees SET full_name=?, position=?, hire_date=?, annual_paid_leave_days=?, carryover_paid_leave_days=?, department_id=? WHERE id=?";
+        String sql = "UPDATE employees SET full_name=?, position=?, hire_date=?, annual_days=?, carryover_days=?, department_id=? WHERE id=?";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, e.getFullName());
             ps.setString(2, e.getPosition());
@@ -81,11 +81,11 @@ public class EmployeeService {
 
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected == 0) {
-                throw new RuntimeException("No employee found with ID: " + e.getId());
+                throw new RuntimeException("Не знайдено працівника з ID: " + e.getId());
             }
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to update employee with ID: " + e.getId(), ex);
+            throw new RuntimeException("Не вдалося оновити інформацію для співробітника з ID: " + e.getId(), ex);
         }
     }
 
@@ -94,16 +94,16 @@ public class EmployeeService {
         String sql = "DELETE FROM employees WHERE id=?";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected == 0) {
-                throw new RuntimeException("No employee found with ID: " + id);
+                throw new RuntimeException("Не знайдено працівника з ID: " + id);
             }
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to delete employee with ID: " + id, ex);
+            throw new RuntimeException("Не вдалося видалити співробітника з ID: " + id, ex);
         }
     }
 
@@ -113,7 +113,7 @@ public class EmployeeService {
         String sql = "SELECT * FROM employees WHERE department_id = ?";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, deptId);
 
@@ -129,8 +129,8 @@ public class EmployeeService {
                         e.setHireDate(hireDate.toLocalDate());
                     }
 
-                    e.setAnnualPaidLeaveDays(rs.getInt("annual_paid_leave_days"));
-                    e.setCarryoverPaidLeaveDays(rs.getInt("carryover_paid_leave_days"));
+                    e.setAnnualPaidLeaveDays(rs.getInt("annual_days"));
+                    e.setCarryoverPaidLeaveDays(rs.getInt("carryover_days"));
                     e.setDepartmentId(rs.getInt("department_id"));
 
                     list.add(e);
@@ -138,7 +138,7 @@ public class EmployeeService {
             }
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to search employees by department ID: " + deptId, ex);
+            throw new RuntimeException("Не вдалося знайти співробітників за ID відділу: " + deptId, ex);
         }
 
         return list;
@@ -150,7 +150,7 @@ public class EmployeeService {
         String sql = "SELECT * FROM employees WHERE position LIKE ?";
 
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, "%" + pos + "%");
 
@@ -166,8 +166,8 @@ public class EmployeeService {
                         e.setHireDate(hireDate.toLocalDate());
                     }
 
-                    e.setAnnualPaidLeaveDays(rs.getInt("annual_paid_leave_days"));
-                    e.setCarryoverPaidLeaveDays(rs.getInt("carryover_paid_leave_days"));
+                    e.setAnnualPaidLeaveDays(rs.getInt("annual_days"));
+                    e.setCarryoverPaidLeaveDays(rs.getInt("carryover_days"));
                     e.setDepartmentId(rs.getInt("department_id"));
 
                     list.add(e);
@@ -175,16 +175,16 @@ public class EmployeeService {
             }
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to search employees by position: " + pos, ex);
+            throw new RuntimeException("Не вдалося знайти співробітників за посадою: " + pos, ex);
         }
 
         return list;
     }
 
     public int getUnusedLeaveDays(int employeeId) {
-        String sql = "SELECT annual_paid_leave_days + carryover_paid_leave_days AS total FROM employees WHERE id = ?";
+        String sql = "SELECT annual_days + carryover_days AS total FROM employees WHERE id = ?";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, employeeId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -193,7 +193,8 @@ public class EmployeeService {
                 }
             }
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to calculate unused leave days for employee: " + employeeId, ex);
+            throw new RuntimeException(
+                    "Не вдалося обчислити невикористані дні відпустки для співробітника: " + employeeId, ex);
         }
         return 0;
     }
@@ -201,7 +202,7 @@ public class EmployeeService {
     public void addVacation(int empId, java.time.LocalDate start, java.time.LocalDate end, String type) {
         String sql = "INSERT INTO vacations (employee_id, start_date, end_date, vacation_type) VALUES (?, ?, ?, ?)";
         try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, empId);
             ps.setDate(2, Date.valueOf(start));
@@ -212,7 +213,7 @@ public class EmployeeService {
             System.out.println("Vacation successfully registered in DB for employee ID: " + empId);
 
         } catch (SQLException ex) {
-            throw new RuntimeException("Failed to add vacation record for employee: " + empId, ex);
+            throw new RuntimeException("Не вдалося додати запис про відпустку для співробітника: " + empId, ex);
         }
     }
 }
