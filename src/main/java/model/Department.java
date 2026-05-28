@@ -5,8 +5,7 @@ public class Department {
     private String name;
     private Integer managerId;
 
-    public Department() {
-    }
+    public Department() {}
 
     public Department(int id, String name, Integer managerId) {
         this.id = id;
@@ -14,27 +13,12 @@ public class Department {
         this.managerId = managerId;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getManagerId() {
-        return managerId;
-    }
-
-    public void setManagerId(Integer managerId) {
-        this.managerId = managerId;
-    }
+    public Integer getManagerId() { return managerId; }
+    public void setManagerId(Integer managerId) { this.managerId = managerId; }
 }
