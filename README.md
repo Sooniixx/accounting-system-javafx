@@ -7,12 +7,12 @@
 
 ## 👥 Склад команди
 
-| Роль | Нікнейм | GitHub профіль |
-| :--- | :--- | :--- |
-| 👑 **Team Lead** | @Sooniixx | [Sooniixx](https://github.com/Sooniixx) |
-| 🎨 **Frontend** | @BaranovaMarina | [BaranovaMarina](https://github.com/BaranovaMarina) |
-| ⚙️ **Backend** | @valerievna1di | [valerievna1di](https://github.com/valerievna1di) |
-| 🕵️‍♂️ **QA Engineer** | @dima344 | [dima344](https://github.com/dima344) |
+| Роль | ПІБ | Група | Нікнейм | GitHub профіль |
+| :--- | :--- | :--- | :--- | :--- |
+| 👑 **Team Lead** | Фесенко Софія Олегівна | ІН-32 | @Sooniixx | [Sooniixx](https://github.com/Sooniixx) |
+| 🎨 **Frontend** | Баранова Марина Володимирівна | ІН-32 | @BaranovaMarina | [BaranovaMarina](https://github.com/BaranovaMarina) |
+| ⚙️ **Backend** | Яковлєва Діана Валеріївна | ІН-31 | @valerievna1di | [valerievna1di](https://github.com/valerievna1di) |
+| 🕵️‍♂️ **QA Engineer** | Дерев'янко Дмитро Романович | ІН-31 | @dima344 | [dima344](https://github.com/dima344) |
 
 ---
 
